@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFC OKC — Tech Training Portal</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --surface2: #f1f2f4;
+    --border: rgba(15,23,42,0.08);
+    --border2: rgba(15,23,42,0.16);
+    --text: #0f172a;
+    --text2: #475569;
+    --text3: #94a3b8;
+    --red: #d61f1f;
+    --red-dark: #b81818;
+    --red-light: #fdeaea;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.06);
+    --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .app { max-width: 820px; margin: 0 auto; padding: 0 0 4rem; }
+
+  /* Header */
+  .header { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, #d61f1f 0%, #a81414 100%); padding: 1.5rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-md); }
+  .logo { width: 50px; height: 50px; border-radius: 12px; background: rgba(255,255,255,0.16); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
+  .logo i { font-size: 27px; color: #fff; }
+  .header h1 { font-size: 21px; font-weight: 600; color: #fff; letter-spacing: -0.01em; }
+  .header p { font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 3px; }
+  .module-grid, .content { margin-left: 1rem; margin-right: 1rem; }
+
+  /* Module grid */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .mod-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; box-shadow: var(--shadow-sm); }
+  .mod-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .mod-card.active { border-color: var(--red); box-shadow: 0 0 0 1px var(--red), var(--shadow-md); }
+  .mod-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 11px; font-size: 21px; }
+  .mod-card h3 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 9px; line-height: 1.4; letter-spacing: -0.01em; }
+  .progress-bar { height: 5px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--red), #ef4444); border-radius: 5px; transition: width 0.4s ease; }
+  .mod-pct { font-size: 11px; color: var(--text3); margin-top: 6px; font-weight: 500; }
+
+  /* Content panel */
+  .content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm); }
+  .content-header { display: flex; align-items: center; gap: 11px; margin-bottom: 1.25rem; padding-bottom: 1.1rem; border-bottom: 1px solid var(--border); }
+  .content-header h2 { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-left: auto; flex-shrink: 0; }
+  .badge-done { background: #dcfce7; color: #15803d; }
+  .badge-pend { background: #fef3c7; color: #b45309; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; background: var(--surface2); padding: 4px; border-radius: 12px; }
+  .tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 600; text-align: center; border: none; background: transparent; color: var(--text2); cursor: pointer; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.18s ease; }
+  .tab:hover:not(.active) { color: var(--text); }
+  .tab.active { background: var(--surface); color: var(--red); box-shadow: var(--shadow-sm); }
+
+  /* Steps */
+  .step-list { list-style: none; margin-bottom: 1.5rem; }
+  .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+  .step-item:last-child { border-bottom: none; }
+  .step-num { font-size: 11px; color: var(--text3); min-width: 18px; padding-top: 3px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .step-cb { width: 21px; height: 21px; border: 2px solid var(--border2); border-radius: 6px; cursor: pointer; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: transparent; }
+  .step-cb:hover { border-color: var(--red); }
+  .step-cb.checked { background: var(--red); border-color: var(--red); }
+  .step-cb.checked::after { content: ''; width: 10px; height: 6px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translateY(-1px); display: block; }
+  .step-body { flex: 1; }
+  .step-text { font-size: 14px; color: var(--text); line-height: 1.55; cursor: pointer; }
+  .step-text.done { color: var(--text3); text-decoration: line-through; }
+  .step-ref { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--red); margin-top: 6px; cursor: pointer; padding: 3px 8px; background: var(--red-light); border-radius: 6px; transition: background 0.15s; }
+  .step-ref:hover { background: #fbd5d5; }
+
+  /* Sign-off */
+  .lock-msg { font-size: 12px; color: var(--text3); text-align: center; padding: 6px 0 0; display: flex; align-items: center; gap: 5px; justify-content: center; font-weight: 500; }
+  .signoff { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.4rem; margin-top: 1rem; }
+  .signoff.locked { opacity: 0.45; pointer-events: none; }
+  .signoff h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 1.1rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 12px; color: var(--text2); font-weight: 500; }
+  .form-group input { height: 40px; padding: 0 12px; font-size: 13px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .form-group input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(214,31,31,0.12); }
+  .sig-group { margin-bottom: 14px; }
+  .sig-group > label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 6px; font-weight: 500; }
+  .sig-box { border: 1.5px dashed var(--border2); border-radius: var(--radius); background: var(--surface); height: 96px; position: relative; overflow: hidden; cursor: crosshair; touch-action: none; transition: border-color 0.15s; }
+  .sig-box:hover { border-color: var(--red); }
+  .sig-box canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .sig-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text3); pointer-events: none; }
+  .sig-actions { display: flex; gap: 8px; margin-top: 6px; }
+  .btn-ghost { font-size: 11px; font-weight: 600; padding: 5px 12px; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+  .btn-ghost:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
+  .submit-btn { width: 100%; padding: 12px; background: var(--red); color: #fff; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.15s, transform 0.1s; box-shadow: var(--shadow-sm); }
+  .submit-btn:hover { background: var(--red-dark); }
+  .submit-btn:active { transform: scale(0.99); }
+
+  /* Photo upload */
+  .photo-section { margin-top: 1.25rem; }
+  .photo-label { font-size: 13px; font-weight: 600; color: var(--text); display: block; margin-bottom: 10px; }
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+  .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-del { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 6px; border: none; background: rgba(15,23,42,0.65); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .photo-del:hover { background: var(--red); }
+  .photo-add { aspect-ratio: 1; border: 1.5px dashed var(--border2); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text3); cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.15s; background: var(--surface); }
+  .photo-add:hover { border-color: var(--red); color: var(--red); }
+
+  /* Action row (print / reset) */
+  .action-row { display: flex; gap: 10px; margin-top: 12px; }
+  .btn-secondary { flex: 1; padding: 11px; background: var(--surface); color: var(--text); border: 1px solid var(--border2); border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.15s; }
+  .btn-secondary:hover { background: var(--surface2); border-color: var(--text3); }
+  .btn-reset { padding: 11px 16px; background: var(--surface); color: var(--text2); border: 1px solid var(--border2); border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.15s; white-space: nowrap; }
+  .btn-reset:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.15s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); max-width: 580px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(15,23,42,0.3); animation: slideUp 0.2s ease; }
+  .modal-header { display: flex; align-items: center; gap: 8px; padding: 1.1rem 1.4rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 1; }
+  .modal-header h3 { font-size: 16px; font-weight: 600; flex: 1; letter-spacing: -0.01em; }
+  .modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--surface2); color: var(--text2); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .modal-close:hover { background: var(--red-light); color: var(--red); }
+  .modal-body { padding: 1.4rem; }
+  .modal-diagram { width: 100%; background: #fafbfc; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.1rem; overflow: hidden; }
+  .modal-caption { font-size: 13.5px; color: var(--text2); line-height: 1.6; }
+  .modal-tag { display: inline-block; font-size: 11px; font-weight: 600; color: var(--red); background: var(--red-light); padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a1a18; color: #f0f0ee; padding: 10px 20px; border-radius: var(--radius); font-size: 13px; opacity: 0; transition: all 0.3s; z-index: 1100; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Auth screen */
+  .auth-wrap { max-width: 400px; margin: 3rem auto 0; padding: 0 1rem; }
+  .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem 1.75rem; box-shadow: var(--shadow-md); }
+  .auth-logo { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg,#d61f1f,#a81414); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+  .auth-logo i { font-size: 30px; color: #fff; }
+  .auth-card h2 { font-size: 20px; font-weight: 600; text-align: center; letter-spacing: -0.01em; }
+  .auth-card .sub { font-size: 13px; color: var(--text2); text-align: center; margin: 6px 0 1.5rem; }
+  .auth-field { margin-bottom: 14px; }
+  .auth-field label { font-size: 12px; font-weight: 500; color: var(--text2); display: block; margin-bottom: 6px; }
+  .auth-field input { width: 100%; height: 44px; padding: 0 12px; font-size: 14px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .auth-field input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(214,31,31,0.12); }
+  .auth-btn { width: 100%; padding: 13px; background: var(--red); color: #fff; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 6px; transition: background 0.15s; }
+  .auth-btn:hover { background: var(--red-dark); }
+  .auth-btn:disabled { opacity: 0.6; cursor: default; }
+  .auth-toggle { text-align: center; font-size: 13px; color: var(--text2); margin-top: 1.25rem; }
+  .auth-toggle a { color: var(--red); font-weight: 600; cursor: pointer; text-decoration: none; }
+  .auth-toggle a:hover { text-decoration: underline; }
+  .auth-error { background: var(--red-light); color: var(--red-dark); font-size: 12.5px; padding: 9px 12px; border-radius: 8px; margin-bottom: 14px; display: none; }
+  .auth-error.show { display: block; }
+
+  /* Top bar with user/logout */
+  .topbar { display: flex; align-items: center; gap: 12px; margin: 0 1rem 1.25rem; }
+  .topbar .who { font-size: 12.5px; color: var(--text2); margin-left: auto; }
+  .topbar button { font-size: 12px; font-weight: 600; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface); color: var(--text2); cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+  .topbar button:hover { background: var(--surface2); color: var(--text); }
+  .topbar button.primary { background: var(--red); color: #fff; border-color: var(--red); }
+  .topbar button.primary:hover { background: var(--red-dark); }
+
+  /* Supervisor table */
+  .sup-wrap { margin: 0 1rem; }
+  .sup-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .sup-toolbar h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow-x: auto; }
+  table.recs { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+  table.recs th { text-align: left; padding: 12px 14px; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  table.recs td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+  table.recs tr:last-child td { border-bottom: none; }
+  table.recs .sig-thumb { height: 30px; border: 1px solid var(--border); border-radius: 4px; background: #fff; }
+  .pill { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 12px; background: var(--red-light); color: var(--red-dark); }
+  .empty-state { padding: 3rem 1rem; text-align: center; color: var(--text3); font-size: 14px; }
+
+  @media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+    .header h1 { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div class="auth-wrap" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo"><i class="ti ti-flame"></i></div>
+    <h2 id="authTitle">Sign in</h2>
+    <p class="sub">AFC OKC Tech Training Portal</p>
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-field" id="nameField" style="display:none">
+      <label>Full name</label>
+      <input type="text" id="authName" placeholder="First Last" autocomplete="name">
+    </div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="auth-btn" id="authBtn" onclick="doAuth()">Sign in</button>
+    <div class="auth-toggle" id="authToggle">
+      New tech? <a onclick="toggleAuthMode()">Create an account</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="app" id="mainApp" style="display:none">
+  <div class="header">
+    <div class="logo"><i class="ti ti-flame"></i></div>
+    <div>
+      <h1>AFC OKC — Tech training portal</h1>
+      <p>Automatic Fire Control Oklahoma City</p>
+    </div>
+  </div>
+  <div class="topbar">
+    <button onclick="showTraining()" id="navTraining" class="primary"><i class="ti ti-clipboard-list"></i> Training</button>
+    <button onclick="showSupervisor()" id="navSupervisor"><i class="ti ti-table"></i> Records</button>
+    <span class="who" id="whoami"></span>
+    <button onclick="doLogout()"><i class="ti ti-logout"></i> Log out</button>
+  </div>
+
+  <!-- training view -->
+  <div id="trainingView">
+    <div class="module-grid" id="moduleGrid"></div>
+    <div class="content" id="moduleContent"></div>
+  </div>
+
+  <!-- supervisor view -->
+  <div id="supervisorView" class="sup-wrap" style="display:none">
+    <div class="sup-toolbar">
+      <h2>Sign-off records</h2>
+      <button onclick="exportCSV()" class="primary" style="margin-left:auto;font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;border:none;color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px"><i class="ti ti-download"></i> Export CSV</button>
+      <button onclick="loadRecords()" style="font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer"><i class="ti ti-refresh"></i></button>
+    </div>
+    <div class="table-card" id="recordsTable"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Reference</h3>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ===== SUPABASE CONFIG — PASTE YOUR TWO VALUES HERE =====
+const SUPABASE_URL = 'https://solufkyfgmaeejozdrtx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvbHVma3lmZ21hZWVqb3pkcnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDgyMDksImV4cCI6MjA5NTk4NDIwOX0.PMvENGiR_Q1Wf7ZE5edmGaB9Wj_NQVcvwF0dIBMbJQY';
+const sb = (window.supabase && SUPABASE_URL.startsWith('http'))
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+let currentUser = null;
+
+const diagrams = {
+  hoodLayout: {
+    title: 'Hood suppression layout',
+    tag: 'NFPA 96 — System overview',
+    caption: 'Typical wet-chemical hood system: agent cylinder feeds distribution piping to nozzles aimed at each cooking appliance and the duct/plenum. Detection line with fusible links runs through the hood; a fusible link releases under heat to trigger the regulated-release assembly.',
+    svg: `<svg viewBox="0 0 560 360" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <rect width="560" height="360" fill="#fafbfc"/>
+      <!-- duct -->
+      <rect x="250" y="24" width="60" height="44" rx="3" fill="#fef2f2" stroke="#d61f1f" stroke-width="2"/>
+      <text x="280" y="51" font-size="13" fill="#b81818" text-anchor="middle">Duct</text>
+      <!-- hood canopy -->
+      <path d="M70 90 L490 90 L450 150 L110 150 Z" fill="#fff5f5" stroke="#d61f1f" stroke-width="2.5"/>
+      <text x="280" y="118" font-size="14" fill="#0f172a" text-anchor="middle" font-weight="600">Exhaust hood / plenum</text>
+      <!-- distribution piping -->
+      <path d="M150 150 L150 132 L410 132 L410 150 M280 150 L280 132 M280 132 L280 78" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>
+      <!-- nozzles -->
+      <g fill="#d61f1f"><circle cx="150" cy="150" r="6"/><circle cx="280" cy="150" r="6"/><circle cx="410" cy="150" r="6"/><circle cx="280" cy="73" r="6"/></g>
+      <text x="498" y="136" font-size="12" fill="#475569">nozzles</text>
+      <!-- appliances -->
+      <g fill="#f1f5f9" stroke="#475569" stroke-width="2">
+        <rect x="110" y="225" width="90" height="56" rx="4"/>
+        <rect x="235" y="225" width="90" height="56" rx="4"/>
+        <rect x="360" y="225" width="90" height="56" rx="4"/>
+      </g>
+      <text x="155" y="259" font-size="13" fill="#0f172a" text-anchor="middle">Fryer</text>
+      <text x="280" y="259" font-size="13" fill="#0f172a" text-anchor="middle">Range</text>
+      <text x="405" y="259" font-size="13" fill="#0f172a" text-anchor="middle">Griddle</text>
+      <!-- spray cones -->
+      <g fill="#d61f1f" opacity="0.12">
+        <path d="M150 156 L130 225 L170 225 Z"/><path d="M280 156 L260 225 L300 225 Z"/><path d="M410 156 L390 225 L430 225 Z"/>
+      </g>
+      <!-- cylinder -->
+      <rect x="490" y="225" width="46" height="100" rx="10" fill="#fff5f5" stroke="#d61f1f" stroke-width="2.5"/>
+      <rect x="505" y="216" width="16" height="12" fill="#d61f1f"/>
+      <text x="513" y="345" font-size="12" fill="#475569" text-anchor="middle">Agent cylinder</text>
+      <path d="M490 240 Q450 180 410 156" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>
+    </svg>`
+  },
+  fusibleLink: {
+    title: 'Fusible link detector',
+    tag: 'NFPA 96 §11.2.2 — Replace every 6 months',
+    caption: 'Fusible links are heat-sensitive detectors in the detection line. The metal alloy element separates at its rated temperature, releasing tension on the cable and actuating the system. Metal alloy links must be replaced at every semi-annual service — not just inspected.',
+    svg: `<svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <rect width="560" height="260" fill="#fafbfc"/>
+      <!-- cable -->
+      <line x1="50" y1="120" x2="210" y2="120" stroke="#475569" stroke-width="3"/>
+      <line x1="350" y1="120" x2="510" y2="120" stroke="#475569" stroke-width="3"/>
+      <!-- link halves -->
+      <rect x="210" y="98" width="56" height="44" rx="3" fill="#fff5f5" stroke="#d61f1f" stroke-width="2.5"/>
+      <rect x="294" y="98" width="56" height="44" rx="3" fill="#fff5f5" stroke="#d61f1f" stroke-width="2.5"/>
+      <!-- solder joint -->
+      <rect x="262" y="106" width="36" height="28" rx="2" fill="#d61f1f" opacity="0.55"/>
+      <!-- labels with leader lines -->
+      <text x="280" y="40" font-size="13" fill="#b81818" text-anchor="middle" font-weight="600">Solder joint</text>
+      <line x1="280" y1="48" x2="280" y2="104" stroke="#d61f1f" stroke-width="1.5"/>
+      <text x="130" y="100" font-size="12" fill="#475569" text-anchor="middle">Detection cable</text>
+      <text x="430" y="100" font-size="12" fill="#475569" text-anchor="middle">To release assembly</text>
+      <text x="280" y="180" font-size="14" fill="#0f172a" text-anchor="middle" font-weight="600">Fusible link assembly</text>
+      <!-- heat arrow -->
+      <line x1="280" y1="240" x2="280" y2="205" stroke="#d61f1f" stroke-width="2.5" marker-end="url(#ar)"/>
+      <text x="280" y="256" font-size="12" fill="#b81818" text-anchor="middle">Heat separates the alloy at rated temp</text>
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#d61f1f"/></marker></defs>
+    </svg>`
+  },
+  nozzleCap: {
+    title: 'Nozzle & blow-off cap',
+    tag: 'NFPA 17A §7.2',
+    caption: 'Each discharge nozzle has a blow-off cap (foil or plastic) keeping grease out of the orifice. Caps must be in place, intact, and undamaged so they blow clear on discharge. Nozzle type, position, and aim must match the system design for the appliance below it.',
+    svg: `<svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <rect width="520" height="280" fill="#fafbfc"/>
+      <!-- pipe -->
+      <rect x="232" y="30" width="46" height="64" rx="3" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+      <text x="298" y="66" font-size="13" fill="#475569">Distribution pipe</text>
+      <line x1="290" y1="62" x2="278" y2="62" stroke="#94a3b8" stroke-width="1.5"/>
+      <!-- nozzle body -->
+      <path d="M232 94 L278 94 L266 128 L244 128 Z" fill="#fff5f5" stroke="#d61f1f" stroke-width="2.5"/>
+      <text x="300" y="116" font-size="13" fill="#475569">Nozzle body</text>
+      <line x1="292" y1="112" x2="272" y2="112" stroke="#94a3b8" stroke-width="1.5"/>
+      <!-- cap -->
+      <ellipse cx="255" cy="136" rx="20" ry="7" fill="#d61f1f" opacity="0.55"/>
+      <text x="300" y="140" font-size="13" fill="#b81818" font-weight="600">Blow-off cap</text>
+      <line x1="292" y1="136" x2="276" y2="136" stroke="#d61f1f" stroke-width="1.5"/>
+      <!-- spray -->
+      <path d="M255 143 L210 232 M255 143 L255 238 M255 143 L300 232" stroke="#d61f1f" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <path d="M255 143 L210 232 L300 232 Z" fill="#d61f1f" opacity="0.08"/>
+      <!-- appliance -->
+      <rect x="180" y="238" width="150" height="34" rx="4" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+      <text x="255" y="260" font-size="13" fill="#0f172a" text-anchor="middle">Protected appliance</text>
+    </svg>`
+  },
+  pullStation: {
+    title: 'Manual pull station',
+    tag: 'NFPA 96 §10.5',
+    caption: 'The manual (remote) pull station provides a means to actuate the system by hand. It must be located in a path of egress, 42–48 in. above the floor, and clearly identified. Pulling it must actuate the system and shut down fuel/electric to the appliances.',
+    svg: `<svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <rect width="520" height="280" fill="#fafbfc"/>
+      <!-- floor & wall -->
+      <line x1="70" y1="50" x2="70" y2="250" stroke="#cbd5e1" stroke-width="3"/>
+      <line x1="40" y1="250" x2="430" y2="250" stroke="#475569" stroke-width="3"/>
+      <text x="235" y="272" font-size="12" fill="#94a3b8" text-anchor="middle">Floor</text>
+      <!-- station box -->
+      <rect x="70" y="95" width="78" height="98" rx="6" fill="#fff5f5" stroke="#d61f1f" stroke-width="2.5"/>
+      <circle cx="109" cy="128" r="12" fill="#d61f1f"/>
+      <rect x="88" y="155" width="42" height="24" rx="4" fill="#d61f1f" opacity="0.45"/>
+      <text x="109" y="171" font-size="13" fill="#b81818" text-anchor="middle" font-weight="600">PULL</text>
+      <!-- label -->
+      <text x="180" y="120" font-size="14" fill="#0f172a" font-weight="600">Manual pull station</text>
+      <text x="180" y="146" font-size="13" fill="#475569">42–48 in. above floor,</text>
+      <text x="180" y="166" font-size="13" fill="#475569">in path of egress</text>
+      <!-- height dimension -->
+      <line x1="50" y1="193" x2="50" y2="250" stroke="#d61f1f" stroke-width="1.5" marker-start="url(#a2)" marker-end="url(#a2)"/>
+      <defs><marker id="a2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#d61f1f"/></marker></defs>
+    </svg>`
+  },
+  gasShutoff: {
+    title: 'Gas / power shutoff interlock',
+    tag: 'NFPA 96 §10.5',
+    caption: 'On actuation the system must shut down fuel and electric power to all protected appliances via a mechanical gas valve and/or electrical shunt trip. Make-up air must also shut down if present. This interlock is verified during every service.',
+    svg: `<svg viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <rect width="520" height="250" fill="#fafbfc"/>
+      <!-- gas line -->
+      <line x1="40" y1="90" x2="205" y2="90" stroke="#475569" stroke-width="4"/>
+      <line x1="275" y1="90" x2="480" y2="90" stroke="#475569" stroke-width="4"/>
+      <text x="80" y="72" font-size="13" fill="#475569">Gas supply</text>
+      <text x="360" y="72" font-size="13" fill="#475569">To appliances</text>
+      <!-- valve -->
+      <circle cx="240" cy="90" r="34" fill="#fff5f5" stroke="#d61f1f" stroke-width="2.5"/>
+      <line x1="216" y1="66" x2="264" y2="114" stroke="#d61f1f" stroke-width="3"/>
+      <text x="240" y="150" font-size="14" fill="#0f172a" text-anchor="middle" font-weight="600">Automatic gas valve</text>
+      <text x="240" y="170" font-size="12" fill="#b81818" text-anchor="middle">(closed on system actuation)</text>
+      <!-- trigger -->
+      <line x1="240" y1="220" x2="240" y2="126" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a3)"/>
+      <text x="240" y="238" font-size="12" fill="#475569" text-anchor="middle">Signal from release assembly</text>
+      <defs><marker id="a3" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#94a3b8"/></marker></defs>
+    </svg>`
+  },
+  classK: {
+    title: 'Class K extinguisher placement',
+    tag: 'NFPA 96 §10.9 / NFPA 10',
+    caption: 'A Class K portable extinguisher (for cooking-oil/grease fires) must be installed within a 30 ft travel distance of the cooking appliances, with a placard directing staff to activate the hood system first.',
+    svg: `<svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="240" fill="#fafbfc"/>
+      <!-- appliance -->
+      <rect x="60" y="150" width="90" height="50" fill="none" stroke="#475569" stroke-width="2"/>
+      <text x="105" y="180" font-size="13" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Cooking</text>
+      <!-- extinguisher -->
+      <rect x="380" y="130" width="34" height="70" rx="10" fill="none" stroke="#d61f1f" stroke-width="2.5"/>
+      <text x="397" y="120" font-size="13" fill="#d61f1f" text-anchor="middle" font-family="sans-serif">Class K</text>
+      <!-- distance line -->
+      <line x1="150" y1="175" x2="380" y2="165" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="265" y="155" font-size="13" fill="#b81818" text-anchor="middle" font-family="sans-serif">≤ 30 ft travel distance</text>
+    </svg>`
+  },
+  cleanAgentRoom: {
+    title: 'Clean agent room layout',
+    tag: 'NFPA 2001 — Total flooding',
+    caption: 'A total-flooding clean agent system protects an enclosed hazard (server room, electrical room). Agent cylinders discharge through piping to ceiling nozzles, flooding the room to design concentration. Room integrity (sealed penetrations, dampers) is critical to hold concentration.',
+    svg: `<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="300" fill="#fafbfc"/>
+      <!-- room -->
+      <rect x="60" y="50" width="320" height="200" fill="none" stroke="#475569" stroke-width="2"/>
+      <text x="220" y="40" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Protected enclosure</text>
+      <!-- nozzles -->
+      <circle cx="140" cy="60" r="5" fill="#d61f1f"/>
+      <circle cx="300" cy="60" r="5" fill="#d61f1f"/>
+      <path d="M140 65 L120 100 M140 65 L160 100 M300 65 L280 100 M300 65 L320 100" stroke="#d61f1f" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <!-- piping -->
+      <path d="M140 60 L300 60 L380 60" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+      <!-- cylinders -->
+      <rect x="400" y="120" width="38" height="100" rx="8" fill="none" stroke="#d61f1f" stroke-width="2.5"/>
+      <rect x="450" y="120" width="38" height="100" rx="8" fill="none" stroke="#d61f1f" stroke-width="2.5"/>
+      <text x="444" y="240" font-size="12" fill="#475569" text-anchor="middle" font-family="sans-serif">Agent cylinders</text>
+      <path d="M400 130 L380 60" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+      <!-- equipment -->
+      <rect x="100" y="180" width="50" height="60" fill="none" stroke="#475569" stroke-width="1.5"/>
+      <rect x="170" y="180" width="50" height="60" fill="none" stroke="#475569" stroke-width="1.5"/>
+      <text x="160" y="270" font-size="12" fill="#475569" text-anchor="middle" font-family="sans-serif">Server / electrical equipment</text>
+    </svg>`
+  },
+  abortSwitch: {
+    title: 'Abort switch & time delay',
+    tag: 'NFPA 2001',
+    caption: 'After detection, a pre-discharge alarm sounds and a time delay (typically 30 s) runs before agent release, allowing occupants to evacuate. An abort switch lets occupants hold discharge while the alarm condition is investigated. Both are verified during service.',
+    svg: `<svg viewBox="0 0 520 230" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="230" fill="#fafbfc"/>
+      <!-- sequence boxes -->
+      <rect x="30" y="90" width="90" height="50" rx="6" fill="none" stroke="#475569" stroke-width="2"/>
+      <text x="75" y="118" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Detection</text>
+      <rect x="160" y="90" width="90" height="50" rx="6" fill="none" stroke="#d61f1f" stroke-width="2"/>
+      <text x="205" y="112" font-size="12" fill="#d61f1f" text-anchor="middle" font-family="sans-serif">Pre-discharge</text>
+      <text x="205" y="126" font-size="12" fill="#d61f1f" text-anchor="middle" font-family="sans-serif">alarm + delay</text>
+      <rect x="290" y="90" width="90" height="50" rx="6" fill="none" stroke="#475569" stroke-width="2"/>
+      <text x="335" y="118" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Discharge</text>
+      <!-- arrows -->
+      <path d="M120 115 L160 115 M152 110 L160 115 L152 120" stroke="#cbd5e1" stroke-width="1.5" fill="none"/>
+      <path d="M250 115 L290 115 M282 110 L290 115 L282 120" stroke="#cbd5e1" stroke-width="1.5" fill="none"/>
+      <!-- abort -->
+      <rect x="160" y="170" width="90" height="40" rx="6" fill="none" stroke="#d61f1f" stroke-width="2" stroke-dasharray="4 3"/>
+      <text x="205" y="195" font-size="12" fill="#d61f1f" text-anchor="middle" font-family="sans-serif">Abort switch</text>
+      <path d="M205 170 L205 140 M200 148 L205 140 L210 148" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+    </svg>`
+  },
+  alarmPanel: {
+    title: 'Fire alarm control panel',
+    tag: 'NFPA 72',
+    caption: 'The fire alarm control panel (FACP) monitors initiating devices (smoke, heat, pull stations, water flow) and drives notification appliances and auxiliary functions (elevator recall, door holders, dampers). Battery backup must hold the panel for the required standby period.',
+    svg: `<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="300" fill="#fafbfc"/>
+      <!-- panel -->
+      <rect x="200" y="110" width="120" height="90" rx="6" fill="none" stroke="#d61f1f" stroke-width="2.5"/>
+      <text x="260" y="160" font-size="12" fill="#d61f1f" text-anchor="middle" font-family="sans-serif">FACP</text>
+      <!-- inputs -->
+      <circle cx="70" cy="60" r="16" fill="none" stroke="#475569" stroke-width="2"/>
+      <text x="70" y="40" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Smoke</text>
+      <rect x="54" y="120" width="32" height="32" fill="none" stroke="#475569" stroke-width="2"/>
+      <text x="70" y="170" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Pull</text>
+      <!-- outputs -->
+      <path d="M430 60 L450 50 L450 70 Z" fill="none" stroke="#475569" stroke-width="2"/>
+      <text x="450" y="40" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Horn/strobe</text>
+      <!-- battery -->
+      <rect x="220" y="230" width="80" height="40" fill="none" stroke="#475569" stroke-width="2"/>
+      <text x="260" y="255" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Battery backup</text>
+      <!-- lines -->
+      <path d="M86 60 L200 130 M86 136 L200 150 M320 140 L430 60 M260 200 L260 230" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="4 3" fill="none"/>
+    </svg>`
+  },
+  sprinklerTypes: {
+    title: 'Sprinkler system types',
+    tag: 'NFPA 13 / NFPA 25',
+    caption: 'Wet systems hold water in the pipe at all times. Dry systems hold pressurized air that releases water when a head opens (for freeze-prone areas). Pre-action requires both detection and a head to open. Identify the type before servicing.',
+    svg: `<svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="240" fill="#fafbfc"/>
+      <!-- wet -->
+      <text x="90" y="40" font-size="12" fill="#d61f1f" text-anchor="middle" font-family="sans-serif">Wet</text>
+      <line x1="40" y1="60" x2="140" y2="60" stroke="#d61f1f" stroke-width="4"/>
+      <circle cx="70" cy="75" r="4" fill="#d61f1f"/>
+      <circle cx="110" cy="75" r="4" fill="#d61f1f"/>
+      <text x="90" y="105" font-size="12" fill="#475569" text-anchor="middle" font-family="sans-serif">Water in pipe</text>
+      <!-- dry -->
+      <text x="260" y="40" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Dry</text>
+      <line x1="210" y1="60" x2="310" y2="60" stroke="#cbd5e1" stroke-width="4" stroke-dasharray="6 4"/>
+      <circle cx="240" cy="75" r="4" fill="#475569"/>
+      <circle cx="280" cy="75" r="4" fill="#475569"/>
+      <text x="260" y="105" font-size="12" fill="#475569" text-anchor="middle" font-family="sans-serif">Air in pipe</text>
+      <!-- pre-action -->
+      <text x="430" y="40" font-size="12" fill="#0f172a" text-anchor="middle" font-family="sans-serif">Pre-action</text>
+      <line x1="380" y1="60" x2="480" y2="60" stroke="#cbd5e1" stroke-width="4" stroke-dasharray="2 3"/>
+      <circle cx="410" cy="75" r="4" fill="#475569"/>
+      <circle cx="450" cy="75" r="4" fill="#475569"/>
+      <text x="430" y="105" font-size="12" fill="#475569" text-anchor="middle" font-family="sans-serif">Detection + head</text>
+      <!-- riser -->
+      <line x1="260" y1="150" x2="260" y2="220" stroke="#475569" stroke-width="3"/>
+      <rect x="240" y="160" width="40" height="24" fill="none" stroke="#d61f1f" stroke-width="2"/>
+      <text x="330" y="178" font-size="13" fill="#0f172a" font-family="sans-serif">Riser / control valve</text>
+      <text x="260" y="235" font-size="12" fill="#475569" text-anchor="middle" font-family="sans-serif">Water supply</text>
+    </svg>`
+  },
+  mainDrain: {
+    title: 'Main drain test',
+    tag: 'NFPA 25',
+    caption: 'The main drain test verifies water supply to the system. Record static pressure (valve closed), then fully open the main drain and record residual (flowing) pressure. A significant drop from prior tests indicates a supply restriction (e.g., partially closed valve).',
+    svg: `<svg viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="250" fill="#fafbfc"/>
+      <!-- riser -->
+      <line x1="140" y1="40" x2="140" y2="210" stroke="#475569" stroke-width="4"/>
+      <!-- gauge -->
+      <circle cx="140" cy="80" r="22" fill="none" stroke="#d61f1f" stroke-width="2.5"/>
+      <line x1="140" y1="80" x2="152" y2="68" stroke="#d61f1f" stroke-width="2"/>
+      <text x="200" y="84" font-size="13" fill="#d61f1f" font-family="sans-serif">Pressure gauge</text>
+      <!-- drain -->
+      <line x1="140" y1="160" x2="240" y2="160" stroke="#475569" stroke-width="4"/>
+      <ellipse cx="200" cy="160" rx="10" ry="14" fill="none" stroke="#d61f1f" stroke-width="2"/>
+      <text x="260" y="164" font-size="13" fill="#0f172a" font-family="sans-serif">Main drain valve</text>
+      <path d="M240 160 L240 200 M232 192 L240 200 L248 192" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+      <text x="240" y="220" font-size="12" fill="#475569" text-anchor="middle" font-family="sans-serif">Flow to drain</text>
+    </svg>`
+  },
+  fdc: {
+    title: 'Fire department connection',
+    tag: 'NFPA 25',
+    caption: 'The FDC lets the fire department pump water into the sprinkler/standpipe system. Check that caps/plugs are in place, swivels turn freely, the clapper checks are intact, and signage is visible and identifies the system served.',
+    svg: `<svg viewBox="0 0 520 230" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="230" fill="#fafbfc"/>
+      <!-- wall -->
+      <rect x="200" y="60" width="120" height="110" rx="6" fill="none" stroke="#475569" stroke-width="2"/>
+      <!-- two inlets -->
+      <circle cx="240" cy="115" r="22" fill="none" stroke="#d61f1f" stroke-width="2.5"/>
+      <circle cx="280" cy="115" r="22" fill="none" stroke="#d61f1f" stroke-width="2.5"/>
+      <text x="260" y="200" font-size="13" fill="#d61f1f" text-anchor="middle" font-family="sans-serif">Fire department connection</text>
+      <!-- sign -->
+      <rect x="215" y="70" width="90" height="20" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="260" y="84" font-size="12" fill="#b81818" text-anchor="middle" font-family="sans-serif">AUTO SPKR</text>
+    </svg>`
+  },
+  generic: {
+    title: 'Reference',
+    tag: 'Field reference',
+    caption: 'Detailed diagram for this step is being prepared. Refer to the system manufacturer documentation and the applicable NFPA standard for specifics.',
+    svg: `<svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="200" fill="#fafbfc"/>
+      <circle cx="260" cy="100" r="40" fill="none" stroke="#d61f1f" stroke-width="2.5"/>
+      <text x="260" y="108" font-size="32" fill="#d61f1f" text-anchor="middle" font-family="sans-serif">?</text>
+    </svg>`
+  }
+};
+
+// ===== MODULES with install + maintenance step sets =====
+// Each step: { t: text, d: diagram key (optional) }
+const modules = [
+  {
+    id: 'hood', label: 'Kitchen hood suppression', icon: 'ti-tool', iconBg: '#fdeaea', iconColor: '#d61f1f',
+    install: [
+      { t: 'Review approved design drawings and confirm appliance layout matches the plan', d: 'hoodLayout' },
+      { t: 'Verify hood and duct construction meet NFPA 96 clearance and material requirements', d: 'hoodLayout' },
+      { t: 'Mount agent cylinder(s) in an accessible location per manufacturer bracket spec', d: 'hoodLayout' },
+      { t: 'Install distribution piping; immobilize with proper hangers and brackets', d: 'hoodLayout' },
+      { t: 'Install nozzles with correct tip type, position, and aim for each appliance', d: 'nozzleCap' },
+      { t: 'Install detection line with fusible links rated for the appliance temperatures', d: 'fusibleLink' },
+      { t: 'Install manual pull station in path of egress, 42–48 in. above floor', d: 'pullStation' },
+      { t: 'Connect automatic gas valve and/or electrical shunt trip for fuel/power shutoff', d: 'gasShutoff' },
+      { t: 'Interconnect system with building fire alarm panel where required', d: 'alarmPanel' },
+      { t: 'Install Class K portable extinguisher within 30 ft of cooking appliances', d: 'classK' },
+      { t: 'Install appliance/nozzle placard depicting protected equipment (systems 2018+)', d: 'nozzleCap' },
+      { t: 'Perform full discharge/functional acceptance test and document commissioning', d: 'hoodLayout' }
+    ],
+    maintain: [
+      { t: 'Notify building management and place fire alarm panel in TEST MODE before beginning (NFPA 96 §11.2.1)', d: 'alarmPanel' },
+      { t: 'Confirm system type and verify UL 300 compliance — document make, model, and last hydro-test date', d: 'hoodLayout' },
+      { t: 'Verify all system controls and components are accessible and free from obstructions', d: 'hoodLayout' },
+      { t: 'Inspect hood, duct, and grease filters for grease accumulation — document condition per NFPA 96 §11.4', d: 'hoodLayout' },
+      { t: 'Inspect all nozzles: verify correct type, quantity, and positioning; check for blockage or grease buildup', d: 'nozzleCap' },
+      { t: 'Confirm all nozzle blow-off caps are in place, intact, and undamaged (NFPA 17A §7.2)', d: 'nozzleCap' },
+      { t: 'REPLACE all metal alloy fusible links (required every 6 months per NFPA 96 §11.2.2 / NFPA 17A)', d: 'fusibleLink' },
+      { t: 'Replace tamper seals on suppression system after fusible link replacement', d: 'fusibleLink' },
+      { t: 'Inspect all piping and conduit — verify immobilized with proper brackets; no corrosion or damage', d: 'hoodLayout' },
+      { t: 'Verify cylinder(s) filled with correct volume of agent — weigh or check gauge per manufacturer spec', d: 'hoodLayout' },
+      { t: 'Confirm hydrostatic test date on cylinder(s) is current (every 12 years per NFPA 17A)', d: 'hoodLayout' },
+      { t: 'Test manual (remote) pull station — verify system actuation and correct configuration', d: 'pullStation' },
+      { t: 'Test automatic detection line — verify system is operational from the terminal (last) fusible link', d: 'fusibleLink' },
+      { t: 'Verify gas shuts down upon actuation — test all fuel shutoff interlocks (NFPA 96 §10.5)', d: 'gasShutoff' },
+      { t: 'Verify electrical power to appliances shuts down; confirm make-up air shuts down if present', d: 'gasShutoff' },
+      { t: 'Confirm suppression system sends proper signal to fire alarm panel upon actuation (NFPA 96 §10.8)', d: 'alarmPanel' },
+      { t: 'Confirm monitoring company received signal (if monitored); restore fire alarm panel from TEST MODE', d: 'alarmPanel' },
+      { t: 'Verify a Class K portable extinguisher is present within 30 ft of cooking equipment (NFPA 96 §10.9)', d: 'classK' },
+      { t: 'Apply current inspection tag (red/yellow/white) to agent cylinder and manual pull handle', d: 'hoodLayout' },
+      { t: 'Complete inspection report; document deficiencies and corrective actions; leave signed copy with owner' }
+    ]
+  },
+  {
+    id: 'clean', label: 'Clean agent systems', icon: 'ti-droplet', iconBg: '#fdeaea', iconColor: '#d61f1f',
+    install: [
+      { t: 'Confirm hazard volume and calculate required agent quantity for design concentration', d: 'cleanAgentRoom' },
+      { t: 'Verify agent type and suitability for the hazard (FM-200, Novec 1230, CO2, etc.)', d: 'cleanAgentRoom' },
+      { t: 'Mount and secure agent cylinder(s) with manufacturer-approved brackets', d: 'cleanAgentRoom' },
+      { t: 'Install distribution piping and ceiling nozzles sized per hydraulic calculations', d: 'cleanAgentRoom' },
+      { t: 'Install detection devices (smoke, heat, beam) per the detection design', d: 'alarmPanel' },
+      { t: 'Install control panel, pre-discharge alarm, and time delay relay', d: 'abortSwitch' },
+      { t: 'Install abort switch accessible to occupants within the protected space', d: 'abortSwitch' },
+      { t: 'Seal room penetrations and verify dampers for room integrity', d: 'cleanAgentRoom' },
+      { t: 'Perform room integrity (fan) test to confirm the enclosure holds concentration', d: 'cleanAgentRoom' },
+      { t: 'Commission system, verify all sequences, and document acceptance test', d: 'abortSwitch' }
+    ],
+    maintain: [
+      { t: 'Confirm hazard classification and agent type; review prior service records', d: 'cleanAgentRoom' },
+      { t: 'Inspect cylinder weight or pressure — verify against system design spec', d: 'cleanAgentRoom' },
+      { t: 'Check cylinder bracket, valve, and discharge head for physical damage', d: 'cleanAgentRoom' },
+      { t: 'Inspect all distribution pipe for corrosion, mechanical damage, and proper support', d: 'cleanAgentRoom' },
+      { t: 'Verify nozzle orifice sizes match design drawings — check for blockage', d: 'cleanAgentRoom' },
+      { t: 'Test all detection devices: smoke heads, heat detectors, beam detectors as applicable', d: 'alarmPanel' },
+      { t: 'Verify abort switch is functional and accessible to occupants', d: 'abortSwitch' },
+      { t: 'Test discharge time delay relay (confirm delay matches AHJ-approved design)', d: 'abortSwitch' },
+      { t: 'Confirm room integrity — inspect door/window seals, cable penetrations, and dampers', d: 'cleanAgentRoom' },
+      { t: 'Test control panel: verify alarm, pre-discharge, and discharge signals', d: 'alarmPanel' },
+      { t: 'Confirm audible/visual warning devices activate correctly', d: 'alarmPanel' },
+      { t: 'Inspect agent release solenoid valve for proper operation', d: 'cleanAgentRoom' },
+      { t: 'Confirm hydrostatic test dates on cylinders are current', d: 'cleanAgentRoom' },
+      { t: 'Document any deficiencies and notify customer before leaving site' }
+    ]
+  },
+  {
+    id: 'alarm', label: 'Fire alarm panels', icon: 'ti-cpu', iconBg: '#fdeaea', iconColor: '#d61f1f',
+    install: [
+      { t: 'Mount control panel in approved location with required clearances', d: 'alarmPanel' },
+      { t: 'Install initiating devices (smoke, heat, pull stations) per the device layout', d: 'alarmPanel' },
+      { t: 'Install notification appliances (horns, strobes, speakers) for required coverage', d: 'alarmPanel' },
+      { t: 'Wire all circuits per manufacturer and NFPA 72 requirements; observe class/style', d: 'alarmPanel' },
+      { t: 'Install and connect battery backup sized for required standby + alarm load', d: 'alarmPanel' },
+      { t: 'Connect auxiliary functions (elevator recall, door holders, dampers, HVAC)', d: 'alarmPanel' },
+      { t: 'Program panel and label all zones/addresses clearly', d: 'alarmPanel' },
+      { t: 'Coordinate monitoring connection and verify central station communication', d: 'alarmPanel' },
+      { t: 'Perform 100% device acceptance test and document commissioning', d: 'alarmPanel' }
+    ],
+    maintain: [
+      { t: 'Review panel manufacturer documentation before beginning service', d: 'alarmPanel' },
+      { t: 'Notify building management and monitoring station before testing', d: 'alarmPanel' },
+      { t: 'Visually inspect panel enclosure, wiring terminations, and battery condition', d: 'alarmPanel' },
+      { t: 'Test all smoke detectors — use listed aerosol or approved method (no open flame)', d: 'alarmPanel' },
+      { t: 'Test all heat detectors with calibrated heat source', d: 'alarmPanel' },
+      { t: 'Test manual pull stations — confirm signal at panel', d: 'pullStation' },
+      { t: 'Test duct detectors and air handler shutdown interlocks', d: 'alarmPanel' },
+      { t: 'Test all notification appliances (horns, strobes, speakers)', d: 'alarmPanel' },
+      { t: 'Verify auxiliary relay outputs (elevator recall, door holders, dampers)', d: 'alarmPanel' },
+      { t: 'Test battery backup — disconnect AC and confirm panel holds for required duration', d: 'alarmPanel' },
+      { t: 'Inspect and test all supervisory signals (tamper switches, water flow)', d: 'alarmPanel' },
+      { t: 'Clear all test conditions and confirm panel returns to normal', d: 'alarmPanel' },
+      { t: 'Restore monitoring station notification and document test completion', d: 'alarmPanel' }
+    ]
+  },
+  {
+    id: 'sprinkler', label: 'Sprinkler systems', icon: 'ti-ripple', iconBg: '#fdeaea', iconColor: '#d61f1f',
+    install: [
+      { t: 'Verify hydraulic design and water supply meet the occupancy hazard demand', d: 'sprinklerTypes' },
+      { t: 'Install system riser, control valve, and backflow preventer', d: 'sprinklerTypes' },
+      { t: 'Install piping with proper hangers, bracing, and seismic supports', d: 'sprinklerTypes' },
+      { t: 'Install sprinkler heads of correct type, orientation, and temperature rating', d: 'sprinklerTypes' },
+      { t: 'Install fire department connection with proper signage', d: 'fdc' },
+      { t: 'For dry systems: install air compressor and verify low-air alarm', d: 'sprinklerTypes' },
+      { t: 'Install inspector\'s test connection and main drain', d: 'mainDrain' },
+      { t: 'Connect water flow and tamper switches to fire alarm panel', d: 'alarmPanel' },
+      { t: 'Hydrostatically test system at 200 psi (or 50 psi above static) for 2 hours', d: 'mainDrain' },
+      { t: 'Complete acceptance test and submit contractor\'s material & test certificate', d: 'mainDrain' }
+    ],
+    maintain: [
+      { t: 'Identify system type: wet, dry, pre-action, or deluge', d: 'sprinklerTypes' },
+      { t: 'Inspect main control valve — verify open and supervised', d: 'sprinklerTypes' },
+      { t: 'Inspect backflow preventer and all valves for proper position and tamper seals', d: 'sprinklerTypes' },
+      { t: 'Inspect inspector\'s test valve and drain connections', d: 'mainDrain' },
+      { t: 'Conduct main drain test — record static and residual pressure', d: 'mainDrain' },
+      { t: 'Inspect sprinkler heads for corrosion, paint, damage, or improper orientation', d: 'sprinklerTypes' },
+      { t: 'Verify spare sprinkler heads and wrench are present in cabinet', d: 'sprinklerTypes' },
+      { t: 'Inspect pipe supports, hangers, and seismic bracing for damage', d: 'sprinklerTypes' },
+      { t: 'For dry systems: check air pressure, compressor operation, and low air alarm', d: 'sprinklerTypes' },
+      { t: 'Test water flow alarm — verify notification within 90 seconds', d: 'alarmPanel' },
+      { t: 'Inspect fire department connection: check caps, clapper, and signage', d: 'fdc' },
+      { t: 'Verify system restoration and all valves returned to correct position', d: 'sprinklerTypes' },
+      { t: 'Complete NFPA 25 inspection form and leave copy with customer' }
+    ]
+  }
+];
+
+// ===== STATE =====
+let active = 0;
+let activeTab = 'maintain'; // 'install' | 'maintain'
+// checked[moduleIndex][tab][stepIndex]
+let checked = modules.map(m => ({
+  install: new Array(m.install.length).fill(false),
+  maintain: new Array(m.maintain.length).fill(false)
+}));
+// formData[moduleIndex][tab]
+function blankPhase() { return { customer: '', serviceDate: '', techName: '', techSig: null, photos: [] }; }
+let formData = modules.map(() => ({ install: blankPhase(), maintain: blankPhase() }));
+
+function steps(i, tab) { return modules[i][tab]; }
+function pct(i, tab) {
+  const arr = checked[i][tab];
+  return Math.round(arr.filter(Boolean).length / arr.length * 100);
+}
+function moduleAvg(i) {
+  return Math.round((pct(i, 'install') + pct(i, 'maintain')) / 2);
+}
+function allDone(i, tab) { return checked[i][tab].every(Boolean); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function renderGrid() {
+  document.getElementById('moduleGrid').innerHTML = modules.map((m, i) => `
+    <div class="mod-card${i === active ? ' active' : ''}" onclick="setModule(${i})">
+      <div class="mod-icon" style="background:${m.iconBg}">
+        <i class="ti ${m.icon}" style="color:${m.iconColor}"></i>
+      </div>
+      <h3>${m.label}</h3>
+      <div class="progress-bar"><div class="progress-fill" style="width:${moduleAvg(i)}%"></div></div>
+      <div class="mod-pct">${moduleAvg(i)}% complete</div>
+    </div>
+  `).join('');
+}
+
+function renderContent() {
+  const m = modules[active];
+  const i = active;
+  const tab = activeTab;
+  const done = allDone(i, tab);
+  const fd = formData[i][tab];
+
+  const stepHtml = steps(i, tab).map((s, si) => `
+    <li class="step-item">
+      <span class="step-num">${si + 1}</span>
+      <div class="step-cb${checked[i][tab][si] ? ' checked' : ''}" role="checkbox" aria-checked="${checked[i][tab][si]}"
+        tabindex="0" onclick="toggleStep(${si})" onkeydown="if(event.key==='Enter'||event.key===' ')toggleStep(${si})"></div>
+      <div class="step-body">
+        <span class="step-text${checked[i][tab][si] ? ' done' : ''}" onclick="${s.d ? `openModal('${s.d}')` : `toggleStep(${si})`}">${s.t}</span>
+        ${s.d ? `<div class="step-ref" onclick="openModal('${s.d}')"><i class="ti ti-photo" style="font-size:13px"></i> View diagram</div>` : ''}
+      </div>
+    </li>
+  `).join('');
+
+  document.getElementById('moduleContent').innerHTML = `
+    <div class="content-header">
+      <div class="mod-icon" style="background:${m.iconBg}">
+        <i class="ti ${m.icon}" style="color:${m.iconColor}"></i>
+      </div>
+      <h2>${m.label}</h2>
+      <span class="badge ${done ? 'badge-done' : 'badge-pend'}">
+        <i class="ti ${done ? 'ti-circle-check' : 'ti-clock'}" style="font-size:13px"></i>
+        ${done ? 'Complete' : 'In progress'}
+      </span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab ${tab === 'install' ? 'active' : ''}" onclick="setTab('install')">
+        <i class="ti ti-tools"></i> Installation
+      </button>
+      <button class="tab ${tab === 'maintain' ? 'active' : ''}" onclick="setTab('maintain')">
+        <i class="ti ti-checkup-list"></i> Maintenance & inspection
+      </button>
+    </div>
+
+    <ul class="step-list">${stepHtml}</ul>
+    ${!done ? `<div class="lock-msg"><i class="ti ti-lock" style="font-size:14px"></i> Complete all steps to unlock sign-off</div>` : ''}
+    <div class="signoff${done ? '' : ' locked'}">
+      <h3><i class="ti ti-building-store" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>Customer & service info</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Customer / site name</label>
+          <input type="text" id="custField" placeholder="e.g. Cattlemen's Steakhouse" value="${fd.customer}" oninput="formData[${i}]['${tab}'].customer=this.value">
+        </div>
+        <div class="form-group">
+          <label>Service date</label>
+          <input type="date" id="svcDate" value="${fd.serviceDate}" oninput="formData[${i}]['${tab}'].serviceDate=this.value">
+        </div>
+      </div>
+
+      ${tab === 'install' ? `
+      <div class="photo-section">
+        <label class="photo-label"><i class="ti ti-camera" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Job-site photos <span style="color:var(--text3);font-weight:400">(for customer report)</span></label>
+        <div class="photo-grid" id="photoGrid">
+          ${fd.photos.map((p, pi) => `
+            <div class="photo-thumb">
+              <img src="${p}" alt="job photo ${pi+1}">
+              <button class="photo-del" onclick="removePhoto(${pi})" title="Remove"><i class="ti ti-x"></i></button>
+            </div>
+          `).join('')}
+          <label class="photo-add">
+            <i class="ti ti-plus" style="font-size:22px"></i>
+            <span>Add photo</span>
+            <input type="file" accept="image/*" multiple onchange="addPhotos(event)" style="display:none">
+          </label>
+        </div>
+      </div>` : ''}
+
+      <h3 style="margin-top:1.5rem"><i class="ti ti-signature" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>${tab === 'install' ? 'Installation' : 'Maintenance'} sign-off</h3>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Technician name</label>
+        <input type="text" id="techName" placeholder="First Last" value="${fd.techName}" oninput="formData[${i}]['${tab}'].techName=this.value">
+      </div>
+      <div class="sig-group">
+        <label>Technician signature</label>
+        <div class="sig-box" id="techSigBox"><canvas id="techCanvas"></canvas><div class="sig-placeholder" id="techPlaceholder">Sign here</div></div>
+        <div class="sig-actions"><button class="btn-ghost" onclick="clearSig('tech')"><i class="ti ti-eraser" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>Clear</button></div>
+      </div>
+      <button class="submit-btn" onclick="submitModule()"><i class="ti ti-circle-check"></i> Submit ${tab === 'install' ? 'installation' : 'maintenance'} sign-off</button>
+      <div class="action-row">
+        <button class="btn-secondary" onclick="printReport()"><i class="ti ti-download"></i> Download customer report</button>
+        <button class="btn-reset" onclick="resetTab()"><i class="ti ti-refresh"></i> Reset for next site</button>
+      </div>
+    </div>
+  `;
+
+  initSigPad('tech', 'techCanvas', 'techPlaceholder');
+}
+
+function setModule(i) { active = i; renderGrid(); renderContent(); }
+function setTab(tab) { activeTab = tab; renderContent(); }
+function toggleStep(si) { checked[active][activeTab][si] = !checked[active][activeTab][si]; renderGrid(); renderContent(); }
+
+// ===== MODAL =====
+function openModal(key) {
+  const d = diagrams[key] || diagrams.generic;
+  document.getElementById('modalTitle').textContent = d.title;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-tag">${d.tag}</div>
+    <div class="modal-diagram">${d.svg}</div>
+    <div class="modal-caption">${d.caption}</div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ===== SIGNATURE PADS =====
+function initSigPad(type, canvasId, placeholderId) {
+  const box = document.getElementById('techSigBox');
+  const canvas = document.getElementById(canvasId);
+  const placeholder = document.getElementById(placeholderId);
+  if (!box || !canvas) return;
+  canvas.width = box.clientWidth || 600;
+  canvas.height = box.clientHeight || 90;
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#cc0000'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+  const saved = formData[active][activeTab][type + 'Sig'];
+  if (saved) {
+    const img = new Image();
+    img.onload = () => { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); placeholder.style.display = 'none'; };
+    img.src = saved;
+  }
+  let isDrawing = false, lx = 0, ly = 0;
+  function getPos(e) { const r = box.getBoundingClientRect(); const s = e.touches ? e.touches[0] : e; return { x: s.clientX - r.left, y: s.clientY - r.top }; }
+  function start(e) { e.preventDefault(); isDrawing = true; const p = getPos(e); lx = p.x; ly = p.y; placeholder.style.display = 'none'; }
+  function move(e) { e.preventDefault(); if (!isDrawing) return; const p = getPos(e); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y); ctx.stroke(); lx = p.x; ly = p.y; }
+  function end() { isDrawing = false; formData[active][activeTab][type + 'Sig'] = canvas.toDataURL(); }
+  box.addEventListener('mousedown', start); box.addEventListener('mousemove', move); box.addEventListener('mouseup', end);
+  box.addEventListener('touchstart', start, { passive: false }); box.addEventListener('touchmove', move, { passive: false }); box.addEventListener('touchend', end);
+}
+function clearSig(type) {
+  const canvas = document.getElementById(type + 'Canvas');
+  const placeholder = document.getElementById(type + 'Placeholder');
+  if (!canvas) return;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  formData[active][activeTab][type + 'Sig'] = null;
+  if (placeholder) placeholder.style.display = 'flex';
+}
+async function submitModule() {
+  const fd = formData[active][activeTab];
+  if (!fd.customer.trim()) { showToast('Enter customer / site name'); return; }
+  if (!fd.serviceDate) { showToast('Enter service date'); return; }
+  if (!fd.techName.trim()) { showToast('Enter technician name before submitting'); return; }
+  if (!fd.techSig) { showToast('Technician signature required'); return; }
+
+  const record = {
+    module: modules[active].id,
+    phase: activeTab,
+    customer: fd.customer.trim(),
+    service_date: fd.serviceDate,
+    tech_name: fd.techName.trim(),
+    date_completed: fd.serviceDate,
+    tech_signature: fd.techSig,
+    checked_steps: checked[active][activeTab],
+    photos: fd.photos
+  };
+
+  if (sb && currentUser) {
+    record.user_id = currentUser.id;
+    const { error } = await sb.from('signoffs').insert(record);
+    if (error) { showToast('Save failed: ' + error.message); return; }
+    showToast(`✓ Saved to records — ${fd.customer.trim()}`);
+  } else {
+    showToast(`✓ Sign-off submitted — ${fd.customer.trim()}`);
+  }
+}
+
+// ===== PHOTOS =====
+function addPhotos(e) {
+  const files = Array.from(e.target.files || []);
+  const fd = formData[active][activeTab];
+  let pending = files.length;
+  if (!pending) return;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      // downscale to keep storage reasonable
+      const img = new Image();
+      img.onload = () => {
+        const max = 1000;
+        let { width, height } = img;
+        if (width > max || height > max) {
+          const r = Math.min(max / width, max / height);
+          width = Math.round(width * r); height = Math.round(height * r);
+        }
+        const c = document.createElement('canvas');
+        c.width = width; c.height = height;
+        c.getContext('2d').drawImage(img, 0, 0, width, height);
+        fd.photos.push(c.toDataURL('image/jpeg', 0.8));
+        if (--pending === 0) renderContent();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function removePhoto(pi) {
+  formData[active][activeTab].photos.splice(pi, 1);
+  renderContent();
+}
+
+// ===== RESET CURRENT TAB =====
+function resetTab() {
+  if (!confirm('Reset this tab for a new site? This clears the checklist, customer info, photos, and signatures on the current tab.')) return;
+  const m = modules[active];
+  checked[active][activeTab] = new Array(m[activeTab].length).fill(false);
+  formData[active][activeTab] = blankPhase();
+  renderGrid();
+  renderContent();
+  showToast('Tab reset — ready for next site');
+}
+
+// ===== CUSTOMER REPORT (print / download) =====
+function buildReportHTML(data) {
+  const stepsRows = data.steps.map((s, i) => `
+    <div class="citem">
+      <span class="num">${i+1}</span>
+      <span class="box${s.checked ? ' on' : ''}"></span>
+      <span>${escapeHtml(s.t)}</span>
+    </div>`).join('');
+  const photosHTML = (data.photos && data.photos.length) ? `
+    <div class="rsection">
+      <h3>Job-Site Photos</h3>
+      <div class="rphotos">${data.photos.map(p => `<img src="${p}">`).join('')}</div>
+    </div>` : '';
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Service Report — ${escapeHtml(data.customer)}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; background: #fff; width: 760px; padding: 30px 36px; }
+    .rhead { display: flex; align-items: center; gap: 13px; margin-bottom: 3px; }
+    .rlogo { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg,#d61f1f,#a81414); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 23px; }
+    .rhead h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: #0f172a; }
+    .rhead p { color: #64748b; font-size: 12px; margin-top: 1px; }
+    .rbar { height: 3px; background: linear-gradient(90deg,#d61f1f,#ef4444); border-radius: 3px; margin: 13px 0 16px; }
+    .rmeta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #e2e8f0; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 18px; }
+    .rmeta .cell { background: #fff; padding: 9px 13px; }
+    .rmeta .cell.full { grid-column: span 3; }
+    .rmeta span { color: #94a3b8; display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+    .rmeta strong { font-size: 13px; font-weight: 600; color: #0f172a; }
+    h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #d61f1f; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    h3::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
+    .rsection { margin-bottom: 16px; }
+    .checklist { column-count: 2; column-gap: 24px; }
+    .citem { display: flex; align-items: flex-start; gap: 7px; padding: 3px 0; break-inside: avoid; font-size: 11px; line-height: 1.35; }
+    .citem .num { color: #cbd5e1; font-weight: 700; font-size: 10px; min-width: 14px; padding-top: 1px; }
+    .box { display: inline-block; width: 13px; height: 13px; border-radius: 3px; border: 1.5px solid #cbd5e1; position: relative; flex-shrink: 0; margin-top: 1px; }
+    .box.on { background: #16a34a; border-color: #16a34a; }
+    .box.on::after { content: ''; position: absolute; left: 3.5px; top: 1px; width: 4px; height: 7px; border-right: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(45deg); }
+    .rphotos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .rphotos img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .rsig { margin-top: 6px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px 14px; max-width: 300px; }
+    .rsig span { font-size: 9px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .rsig .line { border-bottom: 1px solid #e2e8f0; height: 44px; display: flex; align-items: center; }
+    .rsig img { max-height: 42px; }
+    .rsig .name { margin-top: 6px; font-size: 13px; font-weight: 600; color: #0f172a; }
+    .rfoot { margin-top: 18px; padding-top: 12px; border-top: 1px solid #f1f5f9; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; gap: 16px; }
+  </style></head><body>
+    <div class="rhead">
+      <div class="rlogo">▲</div>
+      <div>
+        <h1>Automatic Fire Control</h1>
+        <p>Fire Protection Service Report · Oklahoma City, OK</p>
+      </div>
+    </div>
+    <div class="rbar"></div>
+    <div class="rmeta">
+      <div class="cell full"><span>Customer / Site</span><strong>${escapeHtml(data.customer)}</strong></div>
+      <div class="cell"><span>Service Date</span><strong>${escapeHtml(fmtDate(data.serviceDate))}</strong></div>
+      <div class="cell"><span>System</span><strong>${escapeHtml(data.moduleLabel)}</strong></div>
+      <div class="cell"><span>Service Type</span><strong>${escapeHtml(data.phaseLabel)}</strong></div>
+    </div>
+    <div class="rsection">
+      <h3>${escapeHtml(data.phaseLabel)} Checklist</h3>
+      <div class="checklist">${stepsRows}</div>
+    </div>
+    ${photosHTML}
+    <div class="rsection">
+      <h3>Technician Certification</h3>
+      <div class="rsig">
+        <span>Signature</span>
+        <div class="line">${data.techSig ? `<img src="${data.techSig}">` : ''}</div>
+        <div class="name">${escapeHtml(data.techName)}</div>
+      </div>
+    </div>
+    <div class="rfoot">
+      <span>Generated ${new Date().toLocaleDateString()} · Automatic Fire Control, OKC</span>
+      <span>This report certifies the work indicated above was performed per applicable NFPA standards.</span>
+    </div>
+  </body></html>`;
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T00:00:00');
+  return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+}
+
+async function downloadReportPDF(data) {
+  const html = buildReportHTML(data);
+  // render into an offscreen container
+  const holder = document.createElement('div');
+  holder.style.cssText = 'position:fixed;left:-9999px;top:0;';
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'width:760px;border:0;';
+  holder.appendChild(frame);
+  document.body.appendChild(holder);
+  const doc = frame.contentDocument;
+  doc.open(); doc.write(html); doc.close();
+
+  // wait for images to load
+  await new Promise(res => setTimeout(res, 350));
+  const imgs = Array.from(doc.images);
+  await Promise.all(imgs.map(im => im.complete ? Promise.resolve() : new Promise(r => { im.onload = im.onerror = r; })));
+
+  const fileBase = `AFC-Report-${(data.customer||'site').replace(/[^a-z0-9]+/gi,'-')}-${data.serviceDate||''}`.replace(/-+$/,'');
+
+  try {
+    const body = doc.body;
+    const canvas = await html2canvas(body, { scale: 2, backgroundColor: '#ffffff', windowWidth: 760 });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageW = 210, pageH = 297, margin = 0;
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    // Fit the whole report onto ONE page: scale to whichever dimension is the constraint
+    const ratio = canvas.width / canvas.height;
+    let imgW = pageW, imgH = imgW / ratio;
+    if (imgH > pageH) { imgH = pageH; imgW = imgH * ratio; }
+    const x = (pageW - imgW) / 2, y = (pageH - imgH) / 2;
+    pdf.addImage(imgData, 'JPEG', x, y, imgW, imgH);
+    pdf.save(fileBase + '.pdf');
+    showToast('Report downloaded');
+  } catch (e) {
+    // fallback: download the HTML file if PDF libs failed to load
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fileBase + '.html';
+    a.click();
+    showToast('Report downloaded (HTML)');
+  } finally {
+    document.body.removeChild(holder);
+  }
+}
+
+function printReport() {
+  const fd = formData[active][activeTab];
+  if (!fd.customer.trim() || !fd.serviceDate) { showToast('Enter customer name and service date first'); return; }
+  if (!fd.techSig) { showToast('Add the technician signature first'); return; }
+  showToast('Building report…');
+  downloadReportPDF({
+    moduleLabel: modules[active].label,
+    phaseLabel: activeTab === 'install' ? 'Installation' : 'Maintenance & inspection',
+    customer: fd.customer, serviceDate: fd.serviceDate,
+    techName: fd.techName,
+    steps: modules[active][activeTab].map((s, i) => ({ t: s.t, checked: checked[active][activeTab][i] })),
+    techSig: fd.techSig, photos: fd.photos
+  });
+}
+
+function printRecord(idx) {
+  const r = loadedRecords[idx];
+  if (!r) return;
+  const phaseSteps = (modules.find(m => m.id === r.module) || {})[r.phase] || [];
+  showToast('Building report…');
+  downloadReportPDF({
+    moduleLabel: moduleLabel[r.module] || r.module,
+    phaseLabel: r.phase === 'install' ? 'Installation' : 'Maintenance & inspection',
+    customer: r.customer || '—', serviceDate: r.service_date || r.date_completed,
+    techName: r.tech_name,
+    steps: phaseSteps.map((s, i) => ({ t: s.t, checked: (r.checked_steps || [])[i] })),
+    techSig: r.tech_signature, photos: r.photos || []
+  });
+}
+
+// ===== VIEW SWITCHING =====
+function showTraining() {
+  document.getElementById('trainingView').style.display = '';
+  document.getElementById('supervisorView').style.display = 'none';
+  document.getElementById('navTraining').classList.add('primary');
+  document.getElementById('navSupervisor').classList.remove('primary');
+}
+function showSupervisor() {
+  document.getElementById('trainingView').style.display = 'none';
+  document.getElementById('supervisorView').style.display = '';
+  document.getElementById('navSupervisor').classList.add('primary');
+  document.getElementById('navTraining').classList.remove('primary');
+  loadRecords();
+}
+
+// ===== RECORDS / SUPERVISOR =====
+let loadedRecords = [];
+const moduleLabel = { hood:'Kitchen hood', clean:'Clean agent', alarm:'Fire alarm', sprinkler:'Sprinkler' };
+async function loadRecords() {
+  const el = document.getElementById('recordsTable');
+  if (!sb) { el.innerHTML = '<div class="empty-state">Backend not configured yet — paste your Supabase URL and key at the top of the file.</div>'; return; }
+  el.innerHTML = '<div class="empty-state">Loading…</div>';
+  const { data, error } = await sb.from('signoffs').select('*').order('created_at', { ascending: false });
+  if (error) { el.innerHTML = '<div class="empty-state">Error: ' + error.message + '</div>'; return; }
+  loadedRecords = data || [];
+  if (!loadedRecords.length) { el.innerHTML = '<div class="empty-state">No sign-offs recorded yet.</div>'; return; }
+  el.innerHTML = `
+    <table class="recs">
+      <thead><tr>
+        <th>Service date</th><th>Customer</th><th>Module</th><th>Phase</th><th>Technician</th><th>Signature</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${loadedRecords.map((r, idx) => `
+          <tr>
+            <td>${r.service_date || r.date_completed}</td>
+            <td>${escapeHtml(r.customer || '—')}</td>
+            <td>${moduleLabel[r.module] || r.module}</td>
+            <td><span class="pill">${r.phase === 'install' ? 'Install' : 'Maintain'}</span></td>
+            <td>${escapeHtml(r.tech_name)}</td>
+            <td style="white-space:nowrap">
+              <img class="sig-thumb" src="${r.tech_signature}" alt="tech signature">
+            </td>
+            <td><button onclick="printRecord(${idx})" style="font-size:11px;font-weight:600;padding:6px 10px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;display:inline-flex;align-items:center;gap:4px"><i class="ti ti-printer" style="font-size:13px"></i> Report</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function exportCSV() {
+  if (!loadedRecords.length) { showToast('No records to export'); return; }
+  const rows = [['Service date','Customer','Module','Phase','Technician','Date completed','Submitted']];
+  loadedRecords.forEach(r => rows.push([
+    r.service_date || r.date_completed, r.customer || '', moduleLabel[r.module] || r.module,
+    r.phase, r.tech_name, r.date_completed, new Date(r.created_at).toLocaleString()
+  ]));
+  const csv = rows.map(row => row.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `afc-signoffs-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('CSV downloaded');
+}
+
+// ===== AUTH =====
+let authMode = 'signin'; // 'signin' | 'signup'
+function toggleAuthMode() {
+  authMode = authMode === 'signin' ? 'signup' : 'signin';
+  document.getElementById('authTitle').textContent = authMode === 'signin' ? 'Sign in' : 'Create account';
+  document.getElementById('authBtn').textContent = authMode === 'signin' ? 'Sign in' : 'Create account';
+  document.getElementById('nameField').style.display = authMode === 'signup' ? '' : 'none';
+  document.getElementById('authToggle').innerHTML = authMode === 'signin'
+    ? 'New tech? <a onclick="toggleAuthMode()">Create an account</a>'
+    : 'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>';
+  hideAuthError();
+}
+function showAuthError(msg) { const e = document.getElementById('authError'); e.textContent = msg; e.classList.add('show'); }
+function hideAuthError() { document.getElementById('authError').classList.remove('show'); }
+
+async function doAuth() {
+  hideAuthError();
+  const email = document.getElementById('authEmail').value.trim();
+  const pass = document.getElementById('authPass').value;
+  const name = document.getElementById('authName').value.trim();
+  if (!email || !pass) { showAuthError('Enter email and password.'); return; }
+  if (authMode === 'signup' && !name) { showAuthError('Enter your full name.'); return; }
+  if (!sb) { showAuthError('Backend not configured. Paste your Supabase URL and key at the top of the file.'); return; }
+
+  const btn = document.getElementById('authBtn');
+  btn.disabled = true; btn.textContent = 'Please wait…';
+
+  try {
+    if (authMode === 'signup') {
+      const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+      if (error) throw error;
+      if (data.session) { onSignedIn(data.user); }
+      else { showAuthError('Account created. If email confirmation is on, check your inbox, then sign in.'); toggleAuthMode(); }
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      onSignedIn(data.user);
+    }
+  } catch (e) {
+    showAuthError(e.message || 'Authentication failed.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authMode === 'signin' ? 'Sign in' : 'Create account';
+  }
+}
+
+async function doLogout() {
+  if (sb) await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('authScreen').style.display = '';
+}
+
+function onSignedIn(user) {
+  currentUser = user;
+  const name = (user.user_metadata && user.user_metadata.full_name) || user.email;
+  document.getElementById('whoami').textContent = 'Signed in as ' + name;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = '';
+  showTraining();
+  renderGrid();
+  renderContent();
+}
+
+// ===== INIT =====
+async function init() {
+  // allow Enter key on auth
+  ['authEmail','authPass','authName'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
+  });
+  if (sb) {
+    const { data } = await sb.auth.getSession();
+    if (data.session) { onSignedIn(data.session.user); return; }
+  }
+  // not signed in (or no backend) — show auth screen
+  document.getElementById('authScreen').style.display = '';
+}
+init();
+</script>
+</body>
+</html>
