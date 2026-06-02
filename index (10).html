@@ -98,6 +98,24 @@
   .submit-btn:hover { background: var(--red-dark); }
   .submit-btn:active { transform: scale(0.99); }
 
+  /* Photo upload */
+  .photo-section { margin-top: 1.25rem; }
+  .photo-label { font-size: 13px; font-weight: 600; color: var(--text); display: block; margin-bottom: 10px; }
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+  .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-del { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 6px; border: none; background: rgba(15,23,42,0.65); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .photo-del:hover { background: var(--red); }
+  .photo-add { aspect-ratio: 1; border: 1.5px dashed var(--border2); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text3); cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.15s; background: var(--surface); }
+  .photo-add:hover { border-color: var(--red); color: var(--red); }
+
+  /* Action row (print / reset) */
+  .action-row { display: flex; gap: 10px; margin-top: 12px; }
+  .btn-secondary { flex: 1; padding: 11px; background: var(--surface); color: var(--text); border: 1px solid var(--border2); border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.15s; }
+  .btn-secondary:hover { background: var(--surface2); border-color: var(--text3); }
+  .btn-reset { padding: 11px 16px; background: var(--surface); color: var(--text2); border: 1px solid var(--border2); border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.15s; white-space: nowrap; }
+  .btn-reset:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
+
   /* Modal */
   .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
   .modal-overlay.show { display: flex; animation: fadeIn 0.15s ease; }
@@ -238,10 +256,12 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 // ===== SUPABASE CONFIG — PASTE YOUR TWO VALUES HERE =====
-const SUPABASE_URL = "https://solufkyfgmaeejozdrtx.supabase.co";      // e.g. https://abcdxyz.supabase.co
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvbHVma3lmZ21hZWVqb3pkcnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDgyMDksImV4cCI6MjA5NTk4NDIwOX0.PMvENGiR_Q1Wf7ZE5edmGaB9Wj_NQVcvwF0dIBMbJQY";   // the long "anon public" string
+const SUPABASE_URL = 'https://solufkyfgmaeejozdrtx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvbHVma3lmZ21hZWVqb3pkcnR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDgyMDksImV4cCI6MjA5NTk4NDIwOX0.PMvENGiR_Q1Wf7ZE5edmGaB9Wj_NQVcvwF0dIBMbJQY';
 const sb = (window.supabase && SUPABASE_URL.startsWith('http'))
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
@@ -696,10 +716,8 @@ let checked = modules.map(m => ({
   maintain: new Array(m.maintain.length).fill(false)
 }));
 // formData[moduleIndex][tab]
-let formData = modules.map(() => ({
-  install: { techName: '', date: '', techSig: null, supSig: null },
-  maintain: { techName: '', date: '', techSig: null, supSig: null }
-}));
+function blankPhase() { return { customer: '', serviceDate: '', techName: '', techSig: null, photos: [] }; }
+let formData = modules.map(() => ({ install: blankPhase(), maintain: blankPhase() }));
 
 function steps(i, tab) { return modules[i][tab]; }
 function pct(i, tab) {
@@ -774,33 +792,55 @@ function renderContent() {
     <ul class="step-list">${stepHtml}</ul>
     ${!done ? `<div class="lock-msg"><i class="ti ti-lock" style="font-size:14px"></i> Complete all steps to unlock sign-off</div>` : ''}
     <div class="signoff${done ? '' : ' locked'}">
-      <h3><i class="ti ti-signature" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>${tab === 'install' ? 'Installation' : 'Maintenance'} sign-off</h3>
+      <h3><i class="ti ti-building-store" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>Customer & service info</h3>
       <div class="form-row">
         <div class="form-group">
-          <label>Technician name</label>
-          <input type="text" id="techName" placeholder="First Last" value="${fd.techName}" oninput="formData[${i}]['${tab}'].techName=this.value">
+          <label>Customer / site name</label>
+          <input type="text" id="custField" placeholder="e.g. Cattlemen's Steakhouse" value="${fd.customer}" oninput="formData[${i}]['${tab}'].customer=this.value">
         </div>
         <div class="form-group">
-          <label>Date completed</label>
-          <input type="date" id="dateField" value="${fd.date}" oninput="formData[${i}]['${tab}'].date=this.value">
+          <label>Service date</label>
+          <input type="date" id="svcDate" value="${fd.serviceDate}" oninput="formData[${i}]['${tab}'].serviceDate=this.value">
         </div>
+      </div>
+
+      ${tab === 'install' ? `
+      <div class="photo-section">
+        <label class="photo-label"><i class="ti ti-camera" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Job-site photos <span style="color:var(--text3);font-weight:400">(for customer report)</span></label>
+        <div class="photo-grid" id="photoGrid">
+          ${fd.photos.map((p, pi) => `
+            <div class="photo-thumb">
+              <img src="${p}" alt="job photo ${pi+1}">
+              <button class="photo-del" onclick="removePhoto(${pi})" title="Remove"><i class="ti ti-x"></i></button>
+            </div>
+          `).join('')}
+          <label class="photo-add">
+            <i class="ti ti-plus" style="font-size:22px"></i>
+            <span>Add photo</span>
+            <input type="file" accept="image/*" multiple onchange="addPhotos(event)" style="display:none">
+          </label>
+        </div>
+      </div>` : ''}
+
+      <h3 style="margin-top:1.5rem"><i class="ti ti-signature" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>${tab === 'install' ? 'Installation' : 'Maintenance'} sign-off</h3>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Technician name</label>
+        <input type="text" id="techName" placeholder="First Last" value="${fd.techName}" oninput="formData[${i}]['${tab}'].techName=this.value">
       </div>
       <div class="sig-group">
         <label>Technician signature</label>
         <div class="sig-box" id="techSigBox"><canvas id="techCanvas"></canvas><div class="sig-placeholder" id="techPlaceholder">Sign here</div></div>
         <div class="sig-actions"><button class="btn-ghost" onclick="clearSig('tech')"><i class="ti ti-eraser" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>Clear</button></div>
       </div>
-      <div class="sig-group">
-        <label>Supervisor signature</label>
-        <div class="sig-box" id="supSigBox"><canvas id="supCanvas"></canvas><div class="sig-placeholder" id="supPlaceholder">Sign here</div></div>
-        <div class="sig-actions"><button class="btn-ghost" onclick="clearSig('sup')"><i class="ti ti-eraser" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>Clear</button></div>
-      </div>
       <button class="submit-btn" onclick="submitModule()"><i class="ti ti-circle-check"></i> Submit ${tab === 'install' ? 'installation' : 'maintenance'} sign-off</button>
+      <div class="action-row">
+        <button class="btn-secondary" onclick="printReport()"><i class="ti ti-download"></i> Download customer report</button>
+        <button class="btn-reset" onclick="resetTab()"><i class="ti ti-refresh"></i> Reset for next site</button>
+      </div>
     </div>
   `;
 
   initSigPad('tech', 'techCanvas', 'techPlaceholder');
-  initSigPad('sup', 'supCanvas', 'supPlaceholder');
 }
 
 function setModule(i) { active = i; renderGrid(); renderContent(); }
@@ -823,7 +863,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 // ===== SIGNATURE PADS =====
 function initSigPad(type, canvasId, placeholderId) {
-  const box = document.getElementById(type === 'tech' ? 'techSigBox' : 'supSigBox');
+  const box = document.getElementById('techSigBox');
   const canvas = document.getElementById(canvasId);
   const placeholder = document.getElementById(placeholderId);
   if (!box || !canvas) return;
@@ -856,30 +896,237 @@ function clearSig(type) {
 }
 async function submitModule() {
   const fd = formData[active][activeTab];
+  if (!fd.customer.trim()) { showToast('Enter customer / site name'); return; }
+  if (!fd.serviceDate) { showToast('Enter service date'); return; }
   if (!fd.techName.trim()) { showToast('Enter technician name before submitting'); return; }
-  if (!fd.date) { showToast('Enter date before submitting'); return; }
   if (!fd.techSig) { showToast('Technician signature required'); return; }
-  if (!fd.supSig) { showToast('Supervisor signature required'); return; }
 
   const record = {
     module: modules[active].id,
     phase: activeTab,
+    customer: fd.customer.trim(),
+    service_date: fd.serviceDate,
     tech_name: fd.techName.trim(),
-    date_completed: fd.date,
+    date_completed: fd.serviceDate,
     tech_signature: fd.techSig,
-    sup_signature: fd.supSig,
-    checked_steps: checked[active][activeTab]
+    checked_steps: checked[active][activeTab],
+    photos: fd.photos
   };
 
   if (sb && currentUser) {
     record.user_id = currentUser.id;
     const { error } = await sb.from('signoffs').insert(record);
     if (error) { showToast('Save failed: ' + error.message); return; }
-    showToast(`✓ Saved to records — ${modules[active].label}`);
+    showToast(`✓ Saved to records — ${fd.customer.trim()}`);
   } else {
-    // No backend configured yet — still confirm locally
-    showToast(`✓ ${activeTab === 'install' ? 'Installation' : 'Maintenance'} sign-off submitted — ${modules[active].label}`);
+    showToast(`✓ Sign-off submitted — ${fd.customer.trim()}`);
   }
+}
+
+// ===== PHOTOS =====
+function addPhotos(e) {
+  const files = Array.from(e.target.files || []);
+  const fd = formData[active][activeTab];
+  let pending = files.length;
+  if (!pending) return;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      // downscale to keep storage reasonable
+      const img = new Image();
+      img.onload = () => {
+        const max = 1000;
+        let { width, height } = img;
+        if (width > max || height > max) {
+          const r = Math.min(max / width, max / height);
+          width = Math.round(width * r); height = Math.round(height * r);
+        }
+        const c = document.createElement('canvas');
+        c.width = width; c.height = height;
+        c.getContext('2d').drawImage(img, 0, 0, width, height);
+        fd.photos.push(c.toDataURL('image/jpeg', 0.8));
+        if (--pending === 0) renderContent();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function removePhoto(pi) {
+  formData[active][activeTab].photos.splice(pi, 1);
+  renderContent();
+}
+
+// ===== RESET CURRENT TAB =====
+function resetTab() {
+  if (!confirm('Reset this tab for a new site? This clears the checklist, customer info, photos, and signatures on the current tab.')) return;
+  const m = modules[active];
+  checked[active][activeTab] = new Array(m[activeTab].length).fill(false);
+  formData[active][activeTab] = blankPhase();
+  renderGrid();
+  renderContent();
+  showToast('Tab reset — ready for next site');
+}
+
+// ===== CUSTOMER REPORT (print / download) =====
+function buildReportHTML(data) {
+  const stepsRows = data.steps.map((s, i) => `
+    <div class="citem">
+      <span class="num">${i+1}</span>
+      <span class="box${s.checked ? ' on' : ''}"></span>
+      <span>${escapeHtml(s.t)}</span>
+    </div>`).join('');
+  const photosHTML = (data.photos && data.photos.length) ? `
+    <div class="rsection">
+      <h3>Job-Site Photos</h3>
+      <div class="rphotos">${data.photos.map(p => `<img src="${p}">`).join('')}</div>
+    </div>` : '';
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Service Report — ${escapeHtml(data.customer)}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; background: #fff; width: 760px; padding: 30px 36px; }
+    .rhead { display: flex; align-items: center; gap: 13px; margin-bottom: 3px; }
+    .rlogo { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg,#d61f1f,#a81414); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 23px; }
+    .rhead h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: #0f172a; }
+    .rhead p { color: #64748b; font-size: 12px; margin-top: 1px; }
+    .rbar { height: 3px; background: linear-gradient(90deg,#d61f1f,#ef4444); border-radius: 3px; margin: 13px 0 16px; }
+    .rmeta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #e2e8f0; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 18px; }
+    .rmeta .cell { background: #fff; padding: 9px 13px; }
+    .rmeta .cell.full { grid-column: span 3; }
+    .rmeta span { color: #94a3b8; display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+    .rmeta strong { font-size: 13px; font-weight: 600; color: #0f172a; }
+    h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #d61f1f; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    h3::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
+    .rsection { margin-bottom: 16px; }
+    .checklist { column-count: 2; column-gap: 24px; }
+    .citem { display: flex; align-items: flex-start; gap: 7px; padding: 3px 0; break-inside: avoid; font-size: 11px; line-height: 1.35; }
+    .citem .num { color: #cbd5e1; font-weight: 700; font-size: 10px; min-width: 14px; padding-top: 1px; }
+    .box { display: inline-block; width: 13px; height: 13px; border-radius: 3px; border: 1.5px solid #cbd5e1; position: relative; flex-shrink: 0; margin-top: 1px; }
+    .box.on { background: #16a34a; border-color: #16a34a; }
+    .box.on::after { content: ''; position: absolute; left: 3.5px; top: 1px; width: 4px; height: 7px; border-right: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(45deg); }
+    .rphotos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .rphotos img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .rsig { margin-top: 6px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px 14px; max-width: 300px; }
+    .rsig span { font-size: 9px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .rsig .line { border-bottom: 1px solid #e2e8f0; height: 44px; display: flex; align-items: center; }
+    .rsig img { max-height: 42px; }
+    .rsig .name { margin-top: 6px; font-size: 13px; font-weight: 600; color: #0f172a; }
+    .rfoot { margin-top: 18px; padding-top: 12px; border-top: 1px solid #f1f5f9; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; gap: 16px; }
+  </style></head><body>
+    <div class="rhead">
+      <div class="rlogo">▲</div>
+      <div>
+        <h1>Automatic Fire Control</h1>
+        <p>Fire Protection Service Report · Oklahoma City, OK</p>
+      </div>
+    </div>
+    <div class="rbar"></div>
+    <div class="rmeta">
+      <div class="cell full"><span>Customer / Site</span><strong>${escapeHtml(data.customer)}</strong></div>
+      <div class="cell"><span>Service Date</span><strong>${escapeHtml(fmtDate(data.serviceDate))}</strong></div>
+      <div class="cell"><span>System</span><strong>${escapeHtml(data.moduleLabel)}</strong></div>
+      <div class="cell"><span>Service Type</span><strong>${escapeHtml(data.phaseLabel)}</strong></div>
+    </div>
+    <div class="rsection">
+      <h3>${escapeHtml(data.phaseLabel)} Checklist</h3>
+      <div class="checklist">${stepsRows}</div>
+    </div>
+    ${photosHTML}
+    <div class="rsection">
+      <h3>Technician Certification</h3>
+      <div class="rsig">
+        <span>Signature</span>
+        <div class="line">${data.techSig ? `<img src="${data.techSig}">` : ''}</div>
+        <div class="name">${escapeHtml(data.techName)}</div>
+      </div>
+    </div>
+    <div class="rfoot">
+      <span>Generated ${new Date().toLocaleDateString()} · Automatic Fire Control, OKC</span>
+      <span>This report certifies the work indicated above was performed per applicable NFPA standards.</span>
+    </div>
+  </body></html>`;
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T00:00:00');
+  return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+}
+
+async function downloadReportPDF(data) {
+  const html = buildReportHTML(data);
+  // render into an offscreen container
+  const holder = document.createElement('div');
+  holder.style.cssText = 'position:fixed;left:-9999px;top:0;';
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'width:760px;border:0;';
+  holder.appendChild(frame);
+  document.body.appendChild(holder);
+  const doc = frame.contentDocument;
+  doc.open(); doc.write(html); doc.close();
+
+  // wait for images to load
+  await new Promise(res => setTimeout(res, 350));
+  const imgs = Array.from(doc.images);
+  await Promise.all(imgs.map(im => im.complete ? Promise.resolve() : new Promise(r => { im.onload = im.onerror = r; })));
+
+  const fileBase = `AFC-Report-${(data.customer||'site').replace(/[^a-z0-9]+/gi,'-')}-${data.serviceDate||''}`.replace(/-+$/,'');
+
+  try {
+    const body = doc.body;
+    const canvas = await html2canvas(body, { scale: 2, backgroundColor: '#ffffff', windowWidth: 760 });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageW = 210, pageH = 297, margin = 0;
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    // Fit the whole report onto ONE page: scale to whichever dimension is the constraint
+    const ratio = canvas.width / canvas.height;
+    let imgW = pageW, imgH = imgW / ratio;
+    if (imgH > pageH) { imgH = pageH; imgW = imgH * ratio; }
+    const x = (pageW - imgW) / 2, y = (pageH - imgH) / 2;
+    pdf.addImage(imgData, 'JPEG', x, y, imgW, imgH);
+    pdf.save(fileBase + '.pdf');
+    showToast('Report downloaded');
+  } catch (e) {
+    // fallback: download the HTML file if PDF libs failed to load
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fileBase + '.html';
+    a.click();
+    showToast('Report downloaded (HTML)');
+  } finally {
+    document.body.removeChild(holder);
+  }
+}
+
+function printReport() {
+  const fd = formData[active][activeTab];
+  if (!fd.customer.trim() || !fd.serviceDate) { showToast('Enter customer name and service date first'); return; }
+  if (!fd.techSig) { showToast('Add the technician signature first'); return; }
+  showToast('Building report…');
+  downloadReportPDF({
+    moduleLabel: modules[active].label,
+    phaseLabel: activeTab === 'install' ? 'Installation' : 'Maintenance & inspection',
+    customer: fd.customer, serviceDate: fd.serviceDate,
+    techName: fd.techName,
+    steps: modules[active][activeTab].map((s, i) => ({ t: s.t, checked: checked[active][activeTab][i] })),
+    techSig: fd.techSig, photos: fd.photos
+  });
+}
+
+function printRecord(idx) {
+  const r = loadedRecords[idx];
+  if (!r) return;
+  const phaseSteps = (modules.find(m => m.id === r.module) || {})[r.phase] || [];
+  showToast('Building report…');
+  downloadReportPDF({
+    moduleLabel: moduleLabel[r.module] || r.module,
+    phaseLabel: r.phase === 'install' ? 'Installation' : 'Maintenance & inspection',
+    customer: r.customer || '—', serviceDate: r.service_date || r.date_completed,
+    techName: r.tech_name,
+    steps: phaseSteps.map((s, i) => ({ t: s.t, checked: (r.checked_steps || [])[i] })),
+    techSig: r.tech_signature, photos: r.photos || []
+  });
 }
 
 // ===== VIEW SWITCHING =====
@@ -911,17 +1158,20 @@ async function loadRecords() {
   el.innerHTML = `
     <table class="recs">
       <thead><tr>
-        <th>Date</th><th>Module</th><th>Phase</th><th>Technician</th><th>Tech sig</th><th>Supervisor sig</th>
+        <th>Service date</th><th>Customer</th><th>Module</th><th>Phase</th><th>Technician</th><th>Signature</th><th></th>
       </tr></thead>
       <tbody>
-        ${loadedRecords.map(r => `
+        ${loadedRecords.map((r, idx) => `
           <tr>
-            <td>${r.date_completed}</td>
+            <td>${r.service_date || r.date_completed}</td>
+            <td>${escapeHtml(r.customer || '—')}</td>
             <td>${moduleLabel[r.module] || r.module}</td>
             <td><span class="pill">${r.phase === 'install' ? 'Install' : 'Maintain'}</span></td>
             <td>${escapeHtml(r.tech_name)}</td>
-            <td><img class="sig-thumb" src="${r.tech_signature}" alt="tech signature"></td>
-            <td><img class="sig-thumb" src="${r.sup_signature}" alt="supervisor signature"></td>
+            <td style="white-space:nowrap">
+              <img class="sig-thumb" src="${r.tech_signature}" alt="tech signature">
+            </td>
+            <td><button onclick="printRecord(${idx})" style="font-size:11px;font-weight:600;padding:6px 10px;border-radius:7px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;display:inline-flex;align-items:center;gap:4px"><i class="ti ti-printer" style="font-size:13px"></i> Report</button></td>
           </tr>
         `).join('')}
       </tbody>
@@ -931,10 +1181,10 @@ function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;',
 
 function exportCSV() {
   if (!loadedRecords.length) { showToast('No records to export'); return; }
-  const rows = [['Date','Module','Phase','Technician','Submitted']];
+  const rows = [['Service date','Customer','Module','Phase','Technician','Date completed','Submitted']];
   loadedRecords.forEach(r => rows.push([
-    r.date_completed, moduleLabel[r.module] || r.module, r.phase, r.tech_name,
-    new Date(r.created_at).toLocaleString()
+    r.service_date || r.date_completed, r.customer || '', moduleLabel[r.module] || r.module,
+    r.phase, r.tech_name, r.date_completed, new Date(r.created_at).toLocaleString()
   ]));
   const csv = rows.map(row => row.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
